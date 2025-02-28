@@ -1,8 +1,9 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { FaPlay, FaPause, FaVolumeDown, FaVolumeUp, FaHeart, FaStepBackward, FaStepForward } from "react-icons/fa";
+import { FaPlay, FaPause, FaVolumeDown, FaVolumeUp, FaHeart, FaStepBackward, FaStepForward, FaVolumeMute } from "react-icons/fa";
 import Image from "next/image";
+import { useState, useEffect } from "react";
 
 // Radio station interface
 export interface RadioStation {
@@ -30,6 +31,39 @@ export function RadioPlayer({
   onVolumeChange, 
   onPlayPause 
 }: RadioPlayerProps) {
+  const [isMuted, setIsMuted] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState(volume);
+
+  useEffect(() => {
+    if (volume > 0) {
+      setPreviousVolume(volume);
+    }
+  }, [volume]);
+
+  const handleMuteToggle = () => {
+    if (isMuted) {
+      // Unmute - restore previous volume
+      onVolumeChange(previousVolume);
+      setIsMuted(false);
+    } else {
+      // Mute - set volume to 0
+      setPreviousVolume(volume);
+      onVolumeChange(0);
+      setIsMuted(true);
+    }
+  };
+
+  // Choose the appropriate volume icon based on volume level and mute state
+  const getVolumeIcon = () => {
+    if (isMuted || volume === 0) {
+      return <FaVolumeMute className="w-3 h-3" />;
+    } else if (volume < 50) {
+      return <FaVolumeDown className="w-3 h-3" />;
+    } else {
+      return <FaVolumeUp className="w-3 h-3" />;
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t z-50 shadow-lg">
       <div className="container mx-auto px-4 py-4">
@@ -99,7 +133,14 @@ export function RadioPlayer({
           
           {/* Volume control */}
           <div className="flex items-center w-full max-w-xs gap-2">
-            <FaVolumeDown className="w-3 h-3 text-muted-foreground" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground p-0"
+              onClick={handleMuteToggle}
+            >
+              {getVolumeIcon()}
+            </Button>
             <input
               type="range"
               min="0"
@@ -107,11 +148,19 @@ export function RadioPlayer({
               value={volume}
               onChange={(e) => {
                 e.preventDefault();
-                onVolumeChange(parseInt(e.target.value));
+                const newVolume = parseInt(e.target.value);
+                onVolumeChange(newVolume);
+                if (newVolume > 0 && isMuted) {
+                  setIsMuted(false);
+                }
               }}
-              className="w-full h-2 bg-accent rounded-lg appearance-none cursor-pointer accent-primary"
+              className="w-full h-1 bg-accent rounded-lg appearance-none cursor-pointer accent-primary relative
+                [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:w-3 
+                [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary
+                [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3
+                [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary
+                [&::-moz-range-thumb]:border-none"
             />
-            <FaVolumeUp className="w-3 h-3 text-muted-foreground" />
             
             <Button
               variant="ghost"

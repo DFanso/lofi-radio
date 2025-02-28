@@ -246,7 +246,7 @@ export default function Home() {
   // Handle volume change with dedicated function
   const handleVolumeChange = (newVolume: number) => {
     setVolume(newVolume);
-    // No need to manually set the audio volume here as it's handled by the useEffect
+    // Audio volume is handled in the useEffect
   };
 
   // Cleanup timeouts on unmount
