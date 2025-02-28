@@ -14,6 +14,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [stationsWithErrors, setStationsWithErrors] = useState<string[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryCountRef = useRef(0);
   
   // Initialize audio on client side
   useEffect(() => {
@@ -92,6 +94,13 @@ export default function Home() {
     // Clear any previous errors
     setError(null);
     setIsLoading(true);
+    retryCountRef.current = 0;
+    
+    // Clear any existing timeouts
+    if (loadingTimeoutRef.current) {
+      clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
     
     if (audioRef.current) {
       audioRef.current.pause();
@@ -117,35 +126,63 @@ export default function Home() {
         
         console.log(`Playing station: ${station.name}`, { url: streamUrl });
         
-        // Set the source and play
-        audioRef.current.src = streamUrl;
+        // Instead of showing an error immediately, set a loading message that gives more time
+        const playStream = () => {
+          // Set the source and play
+          if (audioRef.current) {
+            audioRef.current.src = streamUrl;
+            
+            // Try to play the stream directly
+            audioRef.current.play()
+            .then(() => {
+              console.log(`Successfully playing ${station.name}`);
+              setIsPlaying(true);
+              setIsLoading(false);
+              retryCountRef.current = 0;
+              
+              // Clear any loading timeout
+              if (loadingTimeoutRef.current) {
+                clearTimeout(loadingTimeoutRef.current);
+                loadingTimeoutRef.current = null;
+              }
+            })
+            .catch(error => {
+              console.error(`Error playing station: ${station.name}`, error);
+              
+              // Instead of showing an error immediately, try again a few times
+              if (retryCountRef.current < 2) {
+                retryCountRef.current++;
+                console.log(`Retrying (${retryCountRef.current}/2)...`);
+                
+                // Use timeout to retry playback after a delay
+                loadingTimeoutRef.current = setTimeout(() => {
+                  if (audioRef.current) {
+                    playStream();
+                  }
+                }, 3000); // Retry after 3 seconds
+              } else {
+                // After retries, show error
+                setIsPlaying(false);
+                setIsLoading(false);
+                setError(`Could not play ${station.name}. Please try another station.`);
+                
+                // Add station to error list
+                setStationsWithErrors(prev => {
+                  if (!prev.includes(station.id)) {
+                    return [...prev, station.id];
+                  }
+                  return prev;
+                });
+                
+                // Clear error after 5 seconds
+                setTimeout(() => setError(null), 5000);
+              }
+            });
+          }
+        };
         
-        // Try to play the stream directly
-        audioRef.current.play()
-        .then(() => {
-          console.log(`Successfully playing ${station.name}`);
-          setIsPlaying(true);
-          setIsLoading(false);
-        })
-        .catch(error => {
-          console.error(`Error playing station: ${station.name}`, error);
-          
-          // No fallback to CORS proxy, just handle the error directly
-          setIsPlaying(false);
-          setIsLoading(false);
-          setError(`Could not play ${station.name}. Please try another station.`);
-          
-          // Add station to error list
-          setStationsWithErrors(prev => {
-            if (!prev.includes(station.id)) {
-              return [...prev, station.id];
-            }
-            return prev;
-          });
-          
-          // Clear error after 5 seconds
-          setTimeout(() => setError(null), 5000);
-        });
+        // Start the playback process
+        playStream();
         
       } catch (error) {
         console.error(`Caught error playing ${station.name}`, error);
@@ -171,23 +208,49 @@ export default function Home() {
     } else {
       console.log(`Attempting to resume ${currentStation.name}`);
       setIsLoading(true);
+      retryCountRef.current = 0;
       
-      audioRef.current.play()
-        .then(() => {
-          console.log(`Successfully resumed ${currentStation.name}`);
-          setIsPlaying(true);
-          setIsLoading(false);
-        })
-        .catch(error => {
-          console.error(`Error resuming ${currentStation.name}`, error);
-          setIsLoading(false);
-          setError(`Could not play ${currentStation.name}. Please try again.`);
-          
-          // Clear error after 5 seconds
-          setTimeout(() => setError(null), 5000);
-        });
+      const resumePlaying = () => {
+        if (!audioRef.current) return;
+        
+        audioRef.current.play()
+          .then(() => {
+            console.log(`Successfully resumed ${currentStation.name}`);
+            setIsPlaying(true);
+            setIsLoading(false);
+          })
+          .catch(error => {
+            console.error(`Error resuming ${currentStation.name}`, error);
+            
+            // Retry a couple times before showing error
+            if (retryCountRef.current < 2) {
+              retryCountRef.current++;
+              console.log(`Retrying resume (${retryCountRef.current}/2)...`);
+              
+              // Try again after a delay
+              setTimeout(resumePlaying, 2000);
+            } else {
+              setIsLoading(false);
+              setError(`Could not play ${currentStation.name}. Please try again.`);
+              
+              // Clear error after 5 seconds
+              setTimeout(() => setError(null), 5000);
+            }
+          });
+      };
+      
+      resumePlaying();
     }
   };
+  
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (loadingTimeoutRef.current) {
+        clearTimeout(loadingTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
