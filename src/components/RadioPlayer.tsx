@@ -16,6 +16,7 @@ export interface RadioStation {
 interface RadioPlayerProps {
   station: RadioStation | null;
   isPlaying: boolean;
+  isLoading?: boolean;
   volume: number;
   onVolumeChange: (volume: number) => void;
   onPlayPause: () => void;
@@ -24,6 +25,7 @@ interface RadioPlayerProps {
 export function RadioPlayer({ 
   station, 
   isPlaying, 
+  isLoading = false,
   volume, 
   onVolumeChange, 
   onPlayPause 
@@ -74,9 +76,11 @@ export function RadioPlayer({
               size="icon"
               className="h-10 w-10 rounded-full"
               onClick={onPlayPause}
-              disabled={!station}
+              disabled={!station || isLoading}
             >
-              {isPlaying ? (
+              {isLoading ? (
+                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+              ) : isPlaying ? (
                 <FaPause className="w-4 h-4" />
               ) : (
                 <FaPlay className="w-4 h-4 ml-0.5" />

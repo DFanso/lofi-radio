@@ -11,6 +11,7 @@ interface RadioStationCardProps {
   isPlaying: boolean;
   onClick: () => void;
   hasError?: boolean;
+  isLoading?: boolean;
 }
 
 export function RadioStationCard({ 
@@ -18,7 +19,8 @@ export function RadioStationCard({
   isActive, 
   isPlaying, 
   onClick,
-  hasError = false
+  hasError = false,
+  isLoading = false
 }: RadioStationCardProps) {
   const [imageError, setImageError] = useState(false);
 
@@ -55,9 +57,16 @@ export function RadioStationCard({
         </div>
         
         {/* Play indicator */}
-        {isActive && isPlaying && (
+        {isActive && isPlaying && !isLoading && (
           <div className="absolute bottom-3 right-3 z-20 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg animate-pulse-slow">
             <div className="w-3 h-3 bg-primary-foreground rounded-full" />
+          </div>
+        )}
+        
+        {/* Loading indicator */}
+        {isActive && isLoading && (
+          <div className="absolute bottom-3 right-3 z-20 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg">
+            <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
           </div>
         )}
         

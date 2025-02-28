@@ -9,57 +9,35 @@ import { FaMusic } from "react-icons/fa";
 export default function Home() {
   const [currentStation, setCurrentStation] = useState<RadioStation | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [volume, setVolume] = useState(80);
   const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
   const [stationsWithErrors, setStationsWithErrors] = useState<string[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
   
   // Initialize audio on client side
   useEffect(() => {
     audioRef.current = new Audio();
     audioRef.current.volume = volume / 100;
     
+    // Configure audio element for better streaming
+    if (audioRef.current) {
+      audioRef.current.preload = "auto";
+      audioRef.current.crossOrigin = "anonymous";
+    }
+    
     // Add error event listener
     const handleAudioError = (e: Event) => {
-      console.error("Audio error:", e);
       const audioError = e.currentTarget as HTMLAudioElement;
       const errorMessage = audioError.error ? audioError.error.message : "Unknown error";
       
+      console.error(`Audio error: ${errorMessage}`, {
+        src: audioRef.current?.src
+      });
+      
       setIsPlaying(false);
+      setIsLoading(false);
       
-      // Handle specific error types
-      if (errorMessage.includes("AbortError")) {
-        console.log("Aborted error detected, attempting retry");
-        // For AbortError, attempt to retry playback
-        if (retryCount < 3 && currentStation) {
-          setRetryCount(prev => prev + 1);
-          
-          // Short delay before retry
-          setTimeout(() => {
-            if (audioRef.current && currentStation) {
-              audioRef.current.src = currentStation.url;
-              audioRef.current.play().catch(retryError => {
-                console.error("Retry failed:", retryError);
-                setError(`Could not play ${currentStation.name} after retry. Please try again later.`);
-                
-                // Add station to error list after retry fails
-                setStationsWithErrors(prev => {
-                  if (!prev.includes(currentStation.id)) {
-                    return [...prev, currentStation.id];
-                  }
-                  return prev;
-                });
-              });
-            }
-          }, 1000);
-          
-          return;
-        }
-      }
-      
-      // For all other errors or if retries exceeded
       setError("Failed to play this station. Please try another one.");
       
       // Add current station to error list
@@ -76,23 +54,32 @@ export default function Home() {
       setTimeout(() => setError(null), 5000);
     };
     
-    audioRef.current.addEventListener('error', handleAudioError);
+    // Add loadstart and canplay events for better loading indicators
+    const handleLoadStart = () => {
+      setIsLoading(true);
+    };
+    
+    const handleCanPlay = () => {
+      setIsLoading(false);
+    };
+    
+    if (audioRef.current) {
+      audioRef.current.addEventListener('error', handleAudioError);
+      audioRef.current.addEventListener('loadstart', handleLoadStart);
+      audioRef.current.addEventListener('canplay', handleCanPlay);
+    }
     
     // Cleanup function
     return () => {
       if (audioRef.current) {
         audioRef.current.removeEventListener('error', handleAudioError);
+        audioRef.current.removeEventListener('loadstart', handleLoadStart);
+        audioRef.current.removeEventListener('canplay', handleCanPlay);
         audioRef.current.pause();
         audioRef.current = null;
       }
-      
-      // Abort any pending fetch operations
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-      }
     };
-  }, [currentStation, retryCount, volume]);
+  }, [currentStation, volume]);
 
   // Handle volume change
   useEffect(() => {
@@ -102,55 +89,50 @@ export default function Home() {
   }, [volume]);
 
   const handleStationSelect = (station: RadioStation) => {
-    // Clear any previous errors and reset retry count
+    // Clear any previous errors
     setError(null);
-    setRetryCount(0);
-    
-    // Abort any pending operations
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    
-    // Create new abort controller
-    abortControllerRef.current = new AbortController();
+    setIsLoading(true);
     
     if (audioRef.current) {
       audioRef.current.pause();
       
       if (currentStation?.id === station.id && isPlaying) {
         setIsPlaying(false);
+        setIsLoading(false);
         return;
       }
       
       // Play the new station
       try {
-        // Add timeout handling to prevent indefinite loading
-        const timeoutId = setTimeout(() => {
-          if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-            setError(`Loading ${station.name} timed out. Please try again later.`);
-          }
-        }, 15000); // 15 second timeout
+        // Set current station before attempting to play
+        setCurrentStation(station);
         
-        audioRef.current.src = station.url;
-        audioRef.current.play().then(() => {
-          // Clear timeout on successful playback
-          clearTimeout(timeoutId);
-          setCurrentStation(station);
+        // Attempt direct connection first
+        let streamUrl = station.url;
+        
+        // Ensure we're using https to avoid mixed content warnings
+        if (!streamUrl.startsWith('https://')) {
+          streamUrl = 'https://' + streamUrl.replace('http://', '');
+        }
+        
+        console.log(`Playing station: ${station.name}`, { url: streamUrl });
+        
+        // Set the source and play
+        audioRef.current.src = streamUrl;
+        
+        // Try to play the stream directly
+        audioRef.current.play()
+        .then(() => {
+          console.log(`Successfully playing ${station.name}`);
           setIsPlaying(true);
-        }).catch(error => {
-          // Clear timeout
-          clearTimeout(timeoutId);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.error(`Error playing station: ${station.name}`, error);
           
-          console.error("Error playing audio:", error);
-          
-          // Check for AbortError
-          if (error.name === "AbortError") {
-            setError(`Request to play ${station.name} was aborted. Please try again.`);
-            return;
-          }
-          
+          // No fallback to CORS proxy, just handle the error directly
           setIsPlaying(false);
+          setIsLoading(false);
           setError(`Could not play ${station.name}. Please try another station.`);
           
           // Add station to error list
@@ -164,17 +146,11 @@ export default function Home() {
           // Clear error after 5 seconds
           setTimeout(() => setError(null), 5000);
         });
-      } catch (error) {
-        console.error("Caught error playing audio:", error);
-        setError(`Could not play ${station.name}. Please try another station.`);
         
-        // Add station to error list
-        setStationsWithErrors(prev => {
-          if (!prev.includes(station.id)) {
-            return [...prev, station.id];
-          }
-          return prev;
-        });
+      } catch (error) {
+        console.error(`Caught error playing ${station.name}`, error);
+        setError(`Could not play ${station.name}. Please try another station.`);
+        setIsLoading(false);
         
         // Clear error after 5 seconds
         setTimeout(() => setError(null), 5000);
@@ -183,60 +159,33 @@ export default function Home() {
   };
 
   const togglePlayPause = () => {
-    if (!currentStation) return;
+    if (!currentStation || !audioRef.current) return;
     
     // Clear any previous errors
     setError(null);
     
-    if (isPlaying && audioRef.current) {
+    if (isPlaying) {
+      console.log(`Pausing ${currentStation.name}`);
       audioRef.current.pause();
       setIsPlaying(false);
-    } else if (audioRef.current) {
-      // Abort any pending operations
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-      }
+    } else {
+      console.log(`Attempting to resume ${currentStation.name}`);
+      setIsLoading(true);
       
-      // Create new abort controller
-      abortControllerRef.current = new AbortController();
-      
-      // Add timeout handling
-      const timeoutId = setTimeout(() => {
-        if (abortControllerRef.current) {
-          abortControllerRef.current.abort();
-          setError(`Loading ${currentStation.name} timed out. Please try again later.`);
-        }
-      }, 15000); // 15 second timeout
-      
-      audioRef.current.play().then(() => {
-        // Clear timeout on successful playback
-        clearTimeout(timeoutId);
-        setIsPlaying(true);
-      }).catch(error => {
-        // Clear timeout
-        clearTimeout(timeoutId);
-        
-        console.error("Error playing audio:", error);
-        
-        // Check for AbortError
-        if (error.name === "AbortError") {
-          setError(`Request to play ${currentStation.name} was aborted. Please try again.`);
-          return;
-        }
-        
-        setError(`Could not play ${currentStation.name}. Please try another station.`);
-        
-        // Add station to error list
-        setStationsWithErrors(prev => {
-          if (!prev.includes(currentStation.id)) {
-            return [...prev, currentStation.id];
-          }
-          return prev;
+      audioRef.current.play()
+        .then(() => {
+          console.log(`Successfully resumed ${currentStation.name}`);
+          setIsPlaying(true);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.error(`Error resuming ${currentStation.name}`, error);
+          setIsLoading(false);
+          setError(`Could not play ${currentStation.name}. Please try again.`);
+          
+          // Clear error after 5 seconds
+          setTimeout(() => setError(null), 5000);
         });
-        
-        // Clear error after 5 seconds
-        setTimeout(() => setError(null), 5000);
-      });
     }
   };
 
@@ -255,7 +204,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Error message */}
+      {/* Error message only - removed loading indicator */}
       {error && (
         <div className="fixed top-20 left-0 right-0 z-50 flex justify-center">
           <div className="bg-destructive/90 text-destructive-foreground px-4 py-2 rounded-md shadow-lg">
@@ -273,7 +222,8 @@ export default function Home() {
                 key={station.id}
                 station={station}
                 isActive={currentStation?.id === station.id}
-                isPlaying={isPlaying}
+                isPlaying={isPlaying && currentStation?.id === station.id}
+                isLoading={isLoading && currentStation?.id === station.id}
                 hasError={stationsWithErrors.includes(station.id)}
                 onClick={() => handleStationSelect(station)}
               />
@@ -286,6 +236,7 @@ export default function Home() {
       <RadioPlayer
         station={currentStation}
         isPlaying={isPlaying}
+        isLoading={isLoading}
         volume={volume}
         onVolumeChange={setVolume}
         onPlayPause={togglePlayPause}
