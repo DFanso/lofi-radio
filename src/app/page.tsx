@@ -1,10 +1,11 @@
 'use client'
 import { useState, useEffect, useRef } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { RadioPlayer, RadioStation } from "@/components/RadioPlayer";
-import { RadioStationCard } from "@/components/RadioStationCard";
+import RadioPlayer from "@/components/RadioPlayer";
+import RadioStationCard from "@/components/RadioStationCard";
 import { radioStations } from "@/lib/radio-stations";
 import { FaMusic } from "react-icons/fa";
+import type { RadioStation } from "@/types/types";
 
 export default function Home() {
   const [currentStation, setCurrentStation] = useState<RadioStation | null>(null);
@@ -15,13 +16,15 @@ export default function Home() {
   const [stationsWithErrors, setStationsWithErrors] = useState<string[]>([]);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [favorites, setFavorites] = useState<string[]>([]);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
   
-  // Initialize audio on client side
+  // Initialize audio on client side and load favorites from localStorage
   useEffect(() => {
+    // Initialize audio element
     audioRef.current = new Audio();
     audioRef.current.volume = volume / 100;
     
@@ -29,6 +32,16 @@ export default function Home() {
     if (audioRef.current) {
       audioRef.current.preload = "auto";
       audioRef.current.crossOrigin = "anonymous";
+    }
+    
+    // Load favorites from localStorage
+    const savedFavorites = localStorage.getItem('lofiRadioFavorites');
+    if (savedFavorites) {
+      try {
+        setFavorites(JSON.parse(savedFavorites));
+      } catch (e) {
+        console.error('Error loading favorites', e);
+      }
     }
     
     // Add error event listener
@@ -85,6 +98,27 @@ export default function Home() {
       }
     };
   }, [currentStation]);
+
+  // Save favorites to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('lofiRadioFavorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  // Handle adding/removing favorites
+  const toggleFavorite = (stationId: string) => {
+    if (favorites.includes(stationId)) {
+      // Remove from favorites
+      setFavorites(favorites.filter(id => id !== stationId));
+    } else {
+      // Add to favorites
+      setFavorites([...favorites, stationId]);
+    }
+  };
+
+  // Check if a station is favorited
+  const isFavorite = (stationId: string) => {
+    return favorites.includes(stationId);
+  };
 
   // Handle volume change in a separate effect
   useEffect(() => {
@@ -414,6 +448,33 @@ export default function Home() {
             </p>
           </div>
           
+          {/* Favorites section - only show if there are favorites */}
+          {favorites.length > 0 && searchQuery.trim() === '' && (
+            <div className="mb-12">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-semibold">Your Favorites</h3>
+                <span className="text-sm text-muted-foreground">{favorites.length} stations</span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {radioStations
+                  .filter(station => favorites.includes(station.id))
+                  .map((station) => (
+                    <RadioStationCard
+                      key={station.id}
+                      station={station}
+                      isActive={currentStation?.id === station.id}
+                      isPlaying={isPlaying && currentStation?.id === station.id}
+                      isLoading={isLoading && currentStation?.id === station.id}
+                      hasError={stationsWithErrors.includes(station.id)}
+                      isFavorite={true}
+                      onClick={() => handleStationSelect(station)}
+                    />
+                  ))}
+              </div>
+            </div>
+          )}
+          
           {/* Search results indicator */}
           {searchQuery.trim() !== '' && (
             <div className="mb-8">
@@ -445,6 +506,7 @@ export default function Home() {
                       isPlaying={isPlaying && currentStation?.id === station.id}
                       isLoading={isLoading && currentStation?.id === station.id}
                       hasError={stationsWithErrors.includes(station.id)}
+                      isFavorite={isFavorite(station.id)}
                       onClick={() => handleStationSelect(station)}
                     />
                   ))}
@@ -469,6 +531,7 @@ export default function Home() {
                       isPlaying={isPlaying && currentStation?.id === station.id}
                       isLoading={isLoading && currentStation?.id === station.id}
                       hasError={stationsWithErrors.includes(station.id)}
+                      isFavorite={isFavorite(station.id)}
                       onClick={() => handleStationSelect(station)}
                     />
                   ))}
@@ -486,6 +549,7 @@ export default function Home() {
                   isPlaying={isPlaying && currentStation?.id === station.id}
                   isLoading={isLoading && currentStation?.id === station.id}
                   hasError={stationsWithErrors.includes(station.id)}
+                  isFavorite={isFavorite(station.id)}
                   onClick={() => handleStationSelect(station)}
                 />
               ))}
@@ -504,6 +568,8 @@ export default function Home() {
         onPlayPause={togglePlayPause}
         onNextStation={handleNextStation}
         onPreviousStation={handlePreviousStation}
+        isFavorite={currentStation ? isFavorite(currentStation.id) : false}
+        onToggleFavorite={() => currentStation && toggleFavorite(currentStation.id)}
       />
     </div>
   );
