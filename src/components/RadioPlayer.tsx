@@ -115,14 +115,6 @@ export function RadioPlayer({
             </Button>
           </div>
         </div>
-        
-        {/* Progress bar - visual only for now */}
-        <div className="w-full h-1 bg-secondary mt-3">
-          <div 
-            className="h-full bg-primary rounded-r-full"
-            style={{ width: isPlaying ? '45%' : '0%', transition: 'width 1s linear' }}
-          ></div>
-        </div>
       </div>
     </div>
   );
