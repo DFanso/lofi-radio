@@ -302,14 +302,25 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      {/* Header */}
-      <header className="fixed w-full top-0 z-10 bg-background/95 backdrop-blur-md border-b">
+      {/* Enhanced Header/Navigation */}
+      <header className="fixed w-full top-0 z-10 bg-background/80 backdrop-blur-xl border-b shadow-sm">
         <div className="container flex justify-between items-center h-16 px-4 max-w-6xl mx-auto">
-          <div className="flex items-center space-x-2">
-            <FaMusic className="w-5 h-5 text-primary" />
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">Lofi Radio</h1>
+          <div className="flex items-center space-x-3">
+            <div className="bg-gradient-to-r from-purple-500 to-primary p-2 rounded-lg shadow-md">
+              <FaMusic className="w-4 h-4 text-white" />
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">
+              Lofi Radio
+            </h1>
           </div>
+          
           <div className="flex items-center space-x-4">
+            <button className="rounded-full bg-muted p-2 hover:bg-muted/80 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-foreground">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+            </button>
             <ThemeToggle />
           </div>
         </div>
@@ -324,21 +335,61 @@ export default function Home() {
         </div>
       )}
 
-      {/* Main content */}
+      {/* Enhanced Main Content */}
       <main className="flex-1 w-full pt-24 pb-40">
         <div className="px-4 mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {radioStations.map((station) => (
-              <RadioStationCard
-                key={station.id}
-                station={station}
-                isActive={currentStation?.id === station.id}
-                isPlaying={isPlaying && currentStation?.id === station.id}
-                isLoading={isLoading && currentStation?.id === station.id}
-                hasError={stationsWithErrors.includes(station.id)}
-                onClick={() => handleStationSelect(station)}
-              />
-            ))}
+          {/* Hero section */}
+          <div className="mb-12">
+            <h2 className="text-3xl font-bold mb-2">Discover Lofi Music</h2>
+            <p className="text-muted-foreground max-w-2xl">
+              Relax, study, or focus with our curated collection of lofi beats and ambient music from around the world.
+            </p>
+          </div>
+          
+          {/* Featured stations section */}
+          <div className="mb-12">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold">Featured Stations</h3>
+              <button className="text-sm text-primary hover:underline">View All</button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {radioStations.slice(0, 4).map((station) => (
+                <RadioStationCard
+                  key={station.id}
+                  station={station}
+                  isActive={currentStation?.id === station.id}
+                  isPlaying={isPlaying && currentStation?.id === station.id}
+                  isLoading={isLoading && currentStation?.id === station.id}
+                  hasError={stationsWithErrors.includes(station.id)}
+                  onClick={() => handleStationSelect(station)}
+                />
+              ))}
+            </div>
+          </div>
+          
+          {/* All stations section */}
+          <div>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-semibold">All Stations</h3>
+              <div className="flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">{radioStations.length} stations</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {radioStations.slice(4).map((station) => (
+                <RadioStationCard
+                  key={station.id}
+                  station={station}
+                  isActive={currentStation?.id === station.id}
+                  isPlaying={isPlaying && currentStation?.id === station.id}
+                  isLoading={isLoading && currentStation?.id === station.id}
+                  hasError={stationsWithErrors.includes(station.id)}
+                  onClick={() => handleStationSelect(station)}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </main>

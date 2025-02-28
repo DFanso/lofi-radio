@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { RadioStation } from "./RadioPlayer";
 import Image from "next/image";
-import { FaMusic, FaExclamationTriangle } from "react-icons/fa";
+import { FaMusic, FaExclamationTriangle, FaPlay, FaPause } from "react-icons/fa";
 
 interface RadioStationCardProps {
   station: RadioStation;
@@ -26,27 +26,31 @@ export function RadioStationCard({
 
   return (
     <div 
-      className={`rounded-lg overflow-hidden border transition-all hover:shadow-md cursor-pointer group ${
-        isActive && isPlaying 
-          ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-          : ""
-      } ${hasError ? "opacity-70" : ""}`}
+      className={`rounded-xl overflow-hidden border transition-all duration-300 hover:shadow-lg hover:scale-[1.02] cursor-pointer group
+        ${isActive 
+          ? "ring-2 ring-primary border-primary/20 bg-card/50" 
+          : "bg-card hover:bg-card/80 border-muted"}
+        ${hasError ? "opacity-70" : ""}`}
       onClick={onClick}
     >
       <div className="relative aspect-square">
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10" />
+        {/* Glass morphism overlay for active state */}
+        {isActive && (
+          <div className="absolute inset-0 bg-background/20 backdrop-blur-[2px] z-5" />
+        )}
         
-        {/* Background color/pattern */}
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10" />
+        
+        {/* Background image */}
         <div className="w-full h-full bg-accent/30 flex items-center justify-center relative overflow-hidden">
-          {/* Show station image or fallback */}
           {!imageError ? (
             <Image 
               src={station.image}
               alt={station.name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
               onError={() => setImageError(true)}
             />
           ) : (
@@ -56,27 +60,42 @@ export function RadioStationCard({
           )}
         </div>
         
-        {/* Play indicator */}
-        {isActive && isPlaying && !isLoading && (
-          <div className="absolute bottom-3 right-3 z-20 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg animate-pulse-slow">
-            <div className="w-3 h-3 bg-primary-foreground rounded-full" />
-          </div>
-        )}
+        {/* Status indicators */}
+        <div className="absolute top-3 right-3 z-20">
+          {/* Error indicator */}
+          {hasError && (
+            <div className="bg-destructive/90 text-destructive-foreground rounded-full p-1.5 shadow-md">
+              <FaExclamationTriangle className="w-3 h-3" />
+            </div>
+          )}
+        </div>
         
-        {/* Loading indicator */}
-        {isActive && isLoading && (
-          <div className="absolute bottom-3 right-3 z-20 w-10 h-10 rounded-full bg-primary flex items-center justify-center shadow-lg">
-            <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        )}
+        {/* Play/Loading indicator */}
+        <div className="absolute bottom-3 right-3 z-20">
+          {isActive && isLoading && (
+            <div className="w-10 h-10 rounded-full bg-primary shadow-lg flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
+          
+          {isActive && isPlaying && !isLoading && (
+            <div className="w-10 h-10 rounded-full bg-primary shadow-lg flex items-center justify-center">
+              <div className="flex space-x-0.5">
+                <div className="w-1 h-3 bg-white rounded-sm animate-sound-wave"></div>
+                <div className="w-1 h-5 bg-white rounded-sm animate-sound-wave animation-delay-200"></div>
+                <div className="w-1 h-3 bg-white rounded-sm animate-sound-wave animation-delay-500"></div>
+              </div>
+            </div>
+          )}
+        </div>
         
         {/* Play button overlay on hover */}
-        <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <div className="w-14 h-14 rounded-full bg-primary/80 flex items-center justify-center shadow-lg">
+        <div className="absolute inset-0 z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="w-16 h-16 rounded-full bg-black/60 backdrop-blur-sm flex items-center justify-center shadow-lg transform transition-transform group-hover:scale-105">
             {isActive && isPlaying ? (
-              <FaMusic className="w-6 h-6 text-primary-foreground animate-pulse" />
+              <FaPause className="w-6 h-6 text-white" />
             ) : (
-              <FaMusic className="w-6 h-6 text-primary-foreground" />
+              <FaPlay className="w-6 h-6 text-white ml-1" />
             )}
           </div>
         </div>
@@ -84,13 +103,13 @@ export function RadioStationCard({
 
       {/* Station info */}
       <div className="p-4">
-        <div className="flex justify-between items-start">
-          <h3 className="font-medium text-lg">{station.name}</h3>
-          {hasError && (
-            <FaExclamationTriangle className="text-amber-500 w-4 h-4" />
+        <h3 className="font-medium text-lg flex items-center">
+          {station.name}
+          {isActive && (
+            <span className="ml-2 text-xs uppercase tracking-wider text-primary font-semibold">Live</span>
           )}
-        </div>
-        <p className="text-sm text-muted-foreground">{station.description}</p>
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">{station.description}</p>
       </div>
     </div>
   );
