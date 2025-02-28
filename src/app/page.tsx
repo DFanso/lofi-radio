@@ -81,9 +81,9 @@ export default function Home() {
         audioRef.current = null;
       }
     };
-  }, [currentStation, volume]);
+  }, [currentStation]);
 
-  // Handle volume change
+  // Handle volume change in a separate effect
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume / 100;
@@ -243,6 +243,12 @@ export default function Home() {
     }
   };
   
+  // Handle volume change with dedicated function
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+    // No need to manually set the audio volume here as it's handled by the useEffect
+  };
+
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -301,7 +307,7 @@ export default function Home() {
         isPlaying={isPlaying}
         isLoading={isLoading}
         volume={volume}
-        onVolumeChange={setVolume}
+        onVolumeChange={handleVolumeChange}
         onPlayPause={togglePlayPause}
       />
     </div>

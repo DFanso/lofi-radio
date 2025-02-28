@@ -105,7 +105,10 @@ export function RadioPlayer({
               min="0"
               max="100"
               value={volume}
-              onChange={(e) => onVolumeChange(parseInt(e.target.value))}
+              onChange={(e) => {
+                e.preventDefault();
+                onVolumeChange(parseInt(e.target.value));
+              }}
               className="w-full h-2 bg-accent rounded-lg appearance-none cursor-pointer accent-primary"
             />
             <FaVolumeUp className="w-3 h-3 text-muted-foreground" />
