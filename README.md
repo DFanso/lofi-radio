@@ -48,14 +48,14 @@ A beautiful lofi radio web application built with Next.js and pnpm.
 
 The application comes with a collection of lofi radio stations that stream music from various sources. These include:
 
-- Lofi Girl - Beats to relax/study to
-- Chillhop - Chill instrumental beats
-- Jazz Vibes - Smooth jazz and lofi beats
-- Coffee Shop - Coffee shop ambience with lofi music
-- Synthwave - Retro synth vibes
-- Tokyo Lofi - Japanese-inspired lofi beats
-- Ambient Sounds - Calm ambient soundscapes
-- Coding Mode - Focus music for programming
+Working Radio Stations:
+
+- Lofi 
+- Lofi 2
+- Asian Lofi
+- Coffee Shop Vibes
+- Pixel Lofi
+
 
 ## License
 
