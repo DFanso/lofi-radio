@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { FaPlay, FaPause, FaVolumeDown, FaVolumeUp, FaHeart, FaStepBackward, FaStepForward } from "react-icons/fa";
+import Image from "next/image";
 
 // Radio station interface
 export interface RadioStation {
@@ -35,14 +36,13 @@ export function RadioPlayer({
             {/* Station info with album art (if available) */}
             {station && (
               <div className="hidden sm:block relative h-12 w-12 rounded-md overflow-hidden bg-accent/30">
-                {station.image && (
-                  <div className="w-full h-full">
-                    {/* This would be a real image in production */}
-                    <div className="absolute inset-0 flex items-center justify-center text-2xl">
-                      🎵
-                    </div>
-                  </div>
-                )}
+                <Image 
+                  src={station.image}
+                  alt={station.name}
+                  fill
+                  className="object-cover"
+                  sizes="48px"
+                />
               </div>
             )}
             

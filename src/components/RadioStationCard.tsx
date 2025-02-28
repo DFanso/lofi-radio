@@ -3,20 +3,22 @@
 import { useState } from "react";
 import { RadioStation } from "./RadioPlayer";
 import Image from "next/image";
-import { FaMusic } from "react-icons/fa";
+import { FaMusic, FaExclamationTriangle } from "react-icons/fa";
 
 interface RadioStationCardProps {
   station: RadioStation;
   isActive: boolean;
   isPlaying: boolean;
   onClick: () => void;
+  hasError?: boolean;
 }
 
 export function RadioStationCard({ 
   station, 
   isActive, 
   isPlaying, 
-  onClick 
+  onClick,
+  hasError = false
 }: RadioStationCardProps) {
   const [imageError, setImageError] = useState(false);
 
@@ -26,7 +28,7 @@ export function RadioStationCard({
         isActive && isPlaying 
           ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
           : ""
-      }`}
+      } ${hasError ? "opacity-70" : ""}`}
       onClick={onClick}
     >
       <div className="relative aspect-square">
@@ -73,7 +75,12 @@ export function RadioStationCard({
 
       {/* Station info */}
       <div className="p-4">
-        <h3 className="font-medium text-lg">{station.name}</h3>
+        <div className="flex justify-between items-start">
+          <h3 className="font-medium text-lg">{station.name}</h3>
+          {hasError && (
+            <FaExclamationTriangle className="text-amber-500 w-4 h-4" />
+          )}
+        </div>
         <p className="text-sm text-muted-foreground">{station.description}</p>
       </div>
     </div>
