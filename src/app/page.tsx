@@ -13,6 +13,9 @@ export default function Home() {
   const [volume, setVolume] = useState(80);
   const [error, setError] = useState<string | null>(null);
   const [stationsWithErrors, setStationsWithErrors] = useState<string[]>([]);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
@@ -300,6 +303,41 @@ export default function Home() {
     };
   }, []);
 
+  // Filter stations based on search query
+  const filteredStations = searchQuery.trim() === '' 
+    ? radioStations 
+    : radioStations.filter(station => 
+        station.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        station.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+  
+  // Toggle search input visibility
+  const toggleSearch = () => {
+    setIsSearchOpen(!isSearchOpen);
+    if (!isSearchOpen) {
+      // Focus the search input when it becomes visible
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    } else {
+      // Clear search when closing
+      setSearchQuery('');
+    }
+  };
+
+  // Close search when pressing Escape
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isSearchOpen) {
+        setIsSearchOpen(false);
+        setSearchQuery('');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSearchOpen]);
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Enhanced Header/Navigation */}
@@ -315,12 +353,42 @@ export default function Home() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <button className="rounded-full bg-muted p-2 hover:bg-muted/80 transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-foreground">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.3-4.3"></path>
-              </svg>
-            </button>
+            <div className="relative">
+              {isSearchOpen && (
+                <div className="absolute right-0 top-0 -mt-1 animate-in fade-in slide-in-from-top-4 duration-300">
+                  <div className="flex items-center bg-muted rounded-full overflow-hidden pr-2 pl-4 shadow-md">
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      placeholder="Search stations..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="bg-transparent border-none outline-none py-2 w-56 text-sm focus:ring-0"
+                    />
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="p-1 text-muted-foreground hover:text-foreground"
+                    >
+                      {searchQuery && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+              <button 
+                onClick={toggleSearch}
+                className={`rounded-full ${isSearchOpen ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'} p-2 hover:bg-muted/80 transition-colors`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </svg>
+              </button>
+            </div>
             <ThemeToggle />
           </div>
         </div>
@@ -346,39 +414,71 @@ export default function Home() {
             </p>
           </div>
           
-          {/* Featured stations section */}
-          <div className="mb-12">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">Featured Stations</h3>
-              <button className="text-sm text-primary hover:underline">View All</button>
+          {/* Search results indicator */}
+          {searchQuery.trim() !== '' && (
+            <div className="mb-8">
+              <h3 className="text-xl font-semibold mb-2">Search Results</h3>
+              <p className="text-muted-foreground">
+                {filteredStations.length === 0
+                  ? "No stations found matching your search."
+                  : `Found ${filteredStations.length} ${filteredStations.length === 1 ? 'station' : 'stations'} matching "${searchQuery}"`}
+              </p>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {radioStations.slice(0, 4).map((station) => (
-                <RadioStationCard
-                  key={station.id}
-                  station={station}
-                  isActive={currentStation?.id === station.id}
-                  isPlaying={isPlaying && currentStation?.id === station.id}
-                  isLoading={isLoading && currentStation?.id === station.id}
-                  hasError={stationsWithErrors.includes(station.id)}
-                  onClick={() => handleStationSelect(station)}
-                />
-              ))}
-            </div>
-          </div>
+          )}
           
-          {/* All stations section */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-semibold">All Stations</h3>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">{radioStations.length} stations</span>
+          {/* Station grids - conditionally render based on search */}
+          {searchQuery.trim() === '' ? (
+            <>
+              {/* Featured stations section */}
+              <div className="mb-12">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold">Featured Stations</h3>
+                  <span className="text-sm text-muted-foreground">{radioStations.slice(0, 4).length} stations</span>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {radioStations.slice(0, 4).map((station) => (
+                    <RadioStationCard
+                      key={station.id}
+                      station={station}
+                      isActive={currentStation?.id === station.id}
+                      isPlaying={isPlaying && currentStation?.id === station.id}
+                      isLoading={isLoading && currentStation?.id === station.id}
+                      hasError={stationsWithErrors.includes(station.id)}
+                      onClick={() => handleStationSelect(station)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-            
+              
+              {/* All stations section */}
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-semibold">All Stations</h3>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm text-muted-foreground">{radioStations.slice(4).length} stations</span>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {radioStations.slice(4).map((station) => (
+                    <RadioStationCard
+                      key={station.id}
+                      station={station}
+                      isActive={currentStation?.id === station.id}
+                      isPlaying={isPlaying && currentStation?.id === station.id}
+                      isLoading={isLoading && currentStation?.id === station.id}
+                      hasError={stationsWithErrors.includes(station.id)}
+                      onClick={() => handleStationSelect(station)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            /* Search results */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {radioStations.slice(4).map((station) => (
+              {filteredStations.map((station) => (
                 <RadioStationCard
                   key={station.id}
                   station={station}
@@ -390,7 +490,7 @@ export default function Home() {
                 />
               ))}
             </div>
-          </div>
+          )}
         </div>
       </main>
 
