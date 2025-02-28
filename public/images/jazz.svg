@@ -1,0 +1,13 @@
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="400" fill="#61301a"/>
+  <text x="50%" y="30%" font-family="Arial" font-size="35" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">Jazz Vibes</text>
+  <path d="M100,200 C150,150 250,250 300,200" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <path d="M100,220 C150,170 250,270 300,220" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <path d="M100,240 C150,190 250,290 300,240" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <ellipse cx="140" cy="180" rx="30" ry="40" fill="#ffffff" fill-opacity="0.2"/>
+  <ellipse cx="260" cy="180" rx="30" ry="40" fill="#ffffff" fill-opacity="0.2"/>
+  <!-- Jazz symbols -->
+  <path d="M180,280 L190,260 L200,280 L210,260 L220,280" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <circle cx="200" cy="320" r="20" stroke="#ffffff" stroke-width="3" fill="none"/>
+  <line x1="200" y1="300" x2="200" y2="340" stroke="#ffffff" stroke-width="3"/>
+</svg> 
