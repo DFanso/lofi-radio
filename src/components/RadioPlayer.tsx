@@ -21,6 +21,8 @@ interface RadioPlayerProps {
   volume: number;
   onVolumeChange: (volume: number) => void;
   onPlayPause: () => void;
+  onNextStation: () => void;
+  onPreviousStation: () => void;
 }
 
 export function RadioPlayer({ 
@@ -29,10 +31,14 @@ export function RadioPlayer({
   isLoading = false,
   volume, 
   onVolumeChange, 
-  onPlayPause 
+  onPlayPause,
+  onNextStation,
+  onPreviousStation
 }: RadioPlayerProps) {
   const [isMuted, setIsMuted] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(volume);
+  const [isPrevButtonActive, setIsPrevButtonActive] = useState(false);
+  const [isNextButtonActive, setIsNextButtonActive] = useState(false);
 
   useEffect(() => {
     if (volume > 0) {
@@ -62,6 +68,28 @@ export function RadioPlayer({
     } else {
       return <FaVolumeUp className="w-3 h-3" />;
     }
+  };
+
+  // Handle next button with visual feedback
+  const handleNextClick = () => {
+    if (!station) return;
+    
+    setIsNextButtonActive(true);
+    onNextStation();
+    
+    // Reset active state after animation time
+    setTimeout(() => setIsNextButtonActive(false), 200);
+  };
+
+  // Handle previous button with visual feedback
+  const handlePrevClick = () => {
+    if (!station) return;
+    
+    setIsPrevButtonActive(true);
+    onPreviousStation();
+    
+    // Reset active state after animation time
+    setTimeout(() => setIsPrevButtonActive(false), 200);
   };
 
   return (
@@ -97,10 +125,11 @@ export function RadioPlayer({
           {/* Playback controls */}
           <div className="flex items-center space-x-2">
             <Button 
-              variant="ghost"
+              variant={isPrevButtonActive ? "default" : "ghost"}
               size="icon"
-              className="h-8 w-8 text-muted-foreground"
+              className={`h-8 w-8 transition-colors ${isPrevButtonActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}
               disabled={!station}
+              onClick={handlePrevClick}
             >
               <FaStepBackward className="w-3 h-3" />
             </Button>
@@ -122,10 +151,11 @@ export function RadioPlayer({
             </Button>
             
             <Button 
-              variant="ghost"
+              variant={isNextButtonActive ? "default" : "ghost"}
               size="icon"
-              className="h-8 w-8 text-muted-foreground"
+              className={`h-8 w-8 transition-colors ${isNextButtonActive ? 'text-primary-foreground' : 'text-muted-foreground'}`}
               disabled={!station}
+              onClick={handleNextClick}
             >
               <FaStepForward className="w-3 h-3" />
             </Button>

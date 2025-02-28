@@ -249,6 +249,48 @@ export default function Home() {
     // Audio volume is handled in the useEffect
   };
 
+  // Navigate to next station
+  const handleNextStation = () => {
+    if (!currentStation) return;
+    
+    // Clear any errors
+    setError(null);
+    
+    const currentIndex = radioStations.findIndex(station => station.id === currentStation.id);
+    
+    // If current station is found and it's not the last one
+    if (currentIndex !== -1 && currentIndex < radioStations.length - 1) {
+      // Move to next station
+      console.log(`Moving to next station: ${radioStations[currentIndex + 1].name}`);
+      handleStationSelect(radioStations[currentIndex + 1]);
+    } else {
+      // Loop back to the first station
+      console.log(`Looping to first station: ${radioStations[0].name}`);
+      handleStationSelect(radioStations[0]);
+    }
+  };
+
+  // Navigate to previous station
+  const handlePreviousStation = () => {
+    if (!currentStation) return;
+    
+    // Clear any errors
+    setError(null);
+    
+    const currentIndex = radioStations.findIndex(station => station.id === currentStation.id);
+    
+    // If current station is found and it's not the first one
+    if (currentIndex > 0) {
+      // Move to previous station
+      console.log(`Moving to previous station: ${radioStations[currentIndex - 1].name}`);
+      handleStationSelect(radioStations[currentIndex - 1]);
+    } else {
+      // Loop to the last station
+      console.log(`Looping to last station: ${radioStations[radioStations.length - 1].name}`);
+      handleStationSelect(radioStations[radioStations.length - 1]);
+    }
+  };
+
   // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
@@ -309,6 +351,8 @@ export default function Home() {
         volume={volume}
         onVolumeChange={handleVolumeChange}
         onPlayPause={togglePlayPause}
+        onNextStation={handleNextStation}
+        onPreviousStation={handlePreviousStation}
       />
     </div>
   );
