@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { FaPlay, FaPause, FaVolumeDown, FaVolumeUp, FaHeart, FaStepBackward, FaStepForward, FaVolumeMute, FaRegHeart } from "react-icons/fa";
+import { FaPlay, FaPause, FaVolumeUp, FaHeart, FaStepBackward, FaStepForward, FaVolumeMute, FaRegHeart } from "react-icons/fa";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import type { RadioStation } from "@/types/types";

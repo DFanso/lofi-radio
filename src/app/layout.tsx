@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -9,7 +9,15 @@ const poppins = Poppins({
   variable: "--font-poppins",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#7c3aed",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
   title: "Lofi Radio | Relax, Study, Focus",
   description: "Stream the best lofi beats and ambient music from around the world. Perfect for studying, relaxing, or focusing.",
   keywords: ["lofi", "radio", "music", "ambient", "study", "focus", "relax"],
@@ -55,8 +63,6 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/site.webmanifest",
-  themeColor: "#7c3aed",
-  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({

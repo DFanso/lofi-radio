@@ -141,3 +141,19 @@ body {
 .duration-300 {
   animation-duration: 300ms;
 }
+
+/* Add touch-friendly utility for mobile elements */
+@layer utilities {
+  .touch-friendly {
+    @apply p-3;
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Mobile-specific improvements */
+  @media (max-width: 640px) {
+    .scale-on-hover:active {
+      transform: scale(0.98);
+    }
+  }
+}

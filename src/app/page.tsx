@@ -456,7 +456,7 @@ export default function Home() {
                 <span className="text-sm text-muted-foreground">{favorites.length} stations</span>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {radioStations
                   .filter(station => favorites.includes(station.id))
                   .map((station) => (
@@ -497,7 +497,7 @@ export default function Home() {
                   <span className="text-sm text-muted-foreground">{radioStations.slice(0, 4).length} stations</span>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {radioStations.slice(0, 4).map((station) => (
                     <RadioStationCard
                       key={station.id}
@@ -522,7 +522,7 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {radioStations.slice(4).map((station) => (
                     <RadioStationCard
                       key={station.id}
@@ -540,7 +540,7 @@ export default function Home() {
             </>
           ) : (
             /* Search results */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredStations.map((station) => (
                 <RadioStationCard
                   key={station.id}
