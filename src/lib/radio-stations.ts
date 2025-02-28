@@ -12,7 +12,7 @@ export const radioStations: RadioStation[] = [
   {
     id: "chillhop",
     name: "Chillhop",
-    url: "https://streams.fluxfm.de/Chillhop/mp3-256/streams.fluxfm.de/",
+    url: "https://stream.laut.fm/chillhop?ref=radiode",
     description: "Chill instrumental beats",
     image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
   },
@@ -47,14 +47,14 @@ export const radioStations: RadioStation[] = [
   {
     id: "synthwave",
     name: "Synthwave",
-    url: "https://icecast8.play.cz/retrowave-hi.mp3",
+    url: "https://stream.laut.fm/nightdrive",
     description: "80s-inspired electronic beats",
     image: "https://images.unsplash.com/flagged/photo-1595524288414-a7fda0a12d0c?q=80&w=1912&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
   },
   {
     id: "jazz-hop",
     name: "Jazz Hop",
-    url: "https://strm112.1.fm/chillout_mobile_mp3",
+    url: "https://stream.laut.fm/jazzhop",
     description: "Jazz-infused hip hop beats",
     image: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?ixlib=rb-4.0.3&auto=format&fit=crop&w=1632&q=80"
   },
@@ -68,14 +68,14 @@ export const radioStations: RadioStation[] = [
   {
     id: "rain-lofi",
     name: "Rain & Lofi",
-    url: "https://antares.dribbcast.com/proxy/ambient?mp=/stream",
+    url: "https://stream.laut.fm/lofi-rain",
     description: "Lofi beats with rain sounds",
     image: "https://images.unsplash.com/photo-1501691223387-dd0500403074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
   },
   {
     id: "focus-beats",
     name: "Focus Beats",
-    url: "https://stream.zeno.fm/5q54qs0tvtzuv",
+    url: "https://stream.laut.fm/studychill",
     description: "Beats to help you focus and study",
     image: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
   },
