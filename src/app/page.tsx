@@ -83,7 +83,7 @@ export default function Home() {
       </header>
 
       {/* Main content */}
-      <main className="flex-1 w-full pt-24 pb-32">
+      <main className="flex-1 w-full pt-24 pb-40">
         <div className="px-4 mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {radioStations.map((station) => (
