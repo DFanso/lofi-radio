@@ -212,7 +212,7 @@ export default function FullScreenPlayer({
         </div>
 
         {/* Volume control */}
-        <div className="w-full max-w-lg px-4 flex items-center justify-center space-x-4">
+        <div className="w-full max-w-lg px-4 hidden sm:flex items-center justify-center space-x-4">
           <button
             onClick={handleMuteToggle}
             className="text-foreground/70 hover:text-foreground transition-colors"
