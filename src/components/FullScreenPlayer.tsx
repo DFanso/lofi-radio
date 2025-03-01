@@ -125,7 +125,7 @@ export default function FullScreenPlayer({
         <FaTimes className="w-6 h-6" />
       </button>
       
-      <div className="flex flex-col items-center justify-center flex-grow p-6 text-center relative z-10">
+      <div className="flex flex-col items-center justify-center flex-grow p-6 pb-10 sm:pb-6 text-center relative z-10">
         {/* Station artwork */}
         <div className="relative w-full max-w-lg aspect-square mb-8 rounded-2xl overflow-hidden shadow-2xl">
           {!imageError ? (
@@ -157,7 +157,7 @@ export default function FullScreenPlayer({
         </div>
 
         {/* Station info */}
-        <div className="mb-8 w-full max-w-lg px-4">
+        <div className="mb-6 sm:mb-8 w-full max-w-lg px-4">
           <h2 className="text-3xl font-bold mb-2 line-clamp-2">{station.name}</h2>
           <p className="text-lg text-muted-foreground mb-2 line-clamp-2">
             {station.description || "Lofi Radio Station"}
@@ -177,7 +177,7 @@ export default function FullScreenPlayer({
         </div>
 
         {/* Playback controls */}
-        <div className="w-full max-w-lg px-4 mb-8">
+        <div className="w-full max-w-lg px-4 mb-6 sm:mb-8">
           <div className="flex items-center justify-center space-x-8">
             <button
               className="text-foreground/70 hover:text-foreground transition-colors p-3"

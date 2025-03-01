@@ -64,7 +64,7 @@ export default function RadioPlayer({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-md border-t z-50 shadow-lg">
-      <div className="container mx-auto px-4 py-4">
+      <div className="container mx-auto px-4 py-4 pb-6 sm:pb-5">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           {/* Station info */}
           <div className="flex-shrink-0 mr-6 w-full max-w-[180px]">
