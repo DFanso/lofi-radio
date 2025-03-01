@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import RadioPlayer from "@/components/RadioPlayer";
 import RadioStationCard from "@/components/RadioStationCard";
+import FullScreenPlayer from "@/components/FullScreenPlayer";
 import { radioStations } from "@/lib/radio-stations";
 import { FaMusic } from "react-icons/fa";
 import type { RadioStation } from "@/types/types";
@@ -17,6 +18,7 @@ export default function Home() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [isFullScreenOpen, setIsFullScreenOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -442,6 +444,25 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isSearchOpen]);
 
+  // Toggle full screen player
+  const toggleFullScreen = () => {
+    setIsFullScreenOpen(!isFullScreenOpen);
+    
+    // Toggle body scroll locking
+    if (!isFullScreenOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  };
+  
+  // Ensure scroll is restored if component unmounts while in fullscreen
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       {/* Enhanced Header/Navigation */}
@@ -628,19 +649,42 @@ export default function Home() {
         </div>
       </main>
 
-      {/* Player controls */}
-      <RadioPlayer
-        station={currentStation}
-        isPlaying={isPlaying}
-        isLoading={isLoading}
-        volume={volume}
-        onVolumeChange={handleVolumeChange}
-        onPlayPause={togglePlayPause}
-        onNextStation={handleNextStation}
-        onPreviousStation={handlePreviousStation}
-        isFavorite={currentStation ? isFavorite(currentStation.id) : false}
-        onToggleFavorite={() => currentStation && toggleFavorite(currentStation.id)}
-      />
+      {/* Full screen player modal */}
+      {isFullScreenOpen && currentStation && (
+        <FullScreenPlayer
+          station={currentStation}
+          isPlaying={isPlaying}
+          isLoading={isLoading}
+          volume={volume}
+          onVolumeChange={handleVolumeChange}
+          onPlayPause={togglePlayPause}
+          onNextStation={handleNextStation}
+          onPreviousStation={handlePreviousStation}
+          isFavorite={currentStation ? isFavorite(currentStation.id) : false}
+          onToggleFavorite={() => currentStation && toggleFavorite(currentStation.id)}
+          onClose={() => {
+            setIsFullScreenOpen(false);
+            document.body.style.overflow = '';
+          }}
+        />
+      )}
+
+      {/* Player controls - only show when not in full screen mode */}
+      {!isFullScreenOpen && (
+        <RadioPlayer
+          station={currentStation}
+          isPlaying={isPlaying}
+          isLoading={isLoading}
+          volume={volume}
+          onVolumeChange={handleVolumeChange}
+          onPlayPause={togglePlayPause}
+          onNextStation={handleNextStation}
+          onPreviousStation={handlePreviousStation}
+          isFavorite={currentStation ? isFavorite(currentStation.id) : false}
+          onToggleFavorite={() => currentStation && toggleFavorite(currentStation.id)}
+          onOpenFullScreen={toggleFullScreen}
+        />
+      )}
     </div>
   );
 }
