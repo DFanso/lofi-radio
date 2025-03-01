@@ -7,6 +7,7 @@ import FullScreenPlayer from "@/components/FullScreenPlayer";
 import { radioStations } from "@/lib/radio-stations";
 import { FaMusic } from "react-icons/fa";
 import type { RadioStation } from "@/types/types";
+import Image from "next/image";
 
 export default function Home() {
   const [currentStation, setCurrentStation] = useState<RadioStation | null>(null);
@@ -19,6 +20,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isFullScreenOpen, setIsFullScreenOpen] = useState(false);
+  const [backgroundOpacity, setBackgroundOpacity] = useState(0);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -463,8 +465,39 @@ export default function Home() {
     };
   }, []);
 
+  // Animate background opacity when station changes
+  useEffect(() => {
+    if (currentStation) {
+      // Reset opacity
+      setBackgroundOpacity(0);
+      // Animate it in
+      const timer = setTimeout(() => {
+        setBackgroundOpacity(0.15);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStation]);
+
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background relative overflow-hidden">
+      {/* Dynamic station background */}
+      {currentStation && currentStation.imgUrl && (
+        <div 
+          className="fixed inset-0 z-0 transition-opacity duration-1000 ease-in-out"
+          style={{ opacity: backgroundOpacity }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-background to-background/95 z-10" />
+          <Image 
+            src={currentStation.imgUrl} 
+            alt=""
+            fill
+            className="object-cover blur-3xl scale-110"
+            quality={10}
+            priority={false}
+          />
+        </div>
+      )}
+
       {/* Enhanced Header/Navigation */}
       <header className="fixed w-full top-0 z-10 bg-background/80 backdrop-blur-xl border-b shadow-sm">
         <div className="container flex justify-between items-center h-16 px-4 max-w-6xl mx-auto">

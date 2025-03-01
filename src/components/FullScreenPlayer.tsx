@@ -46,10 +46,16 @@ export default function FullScreenPlayer({
   const [imageError, setImageError] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [prevVolume, setPrevVolume] = useState(volume);
+  const [bgOpacity, setBgOpacity] = useState(0);
   
-  // Reset image error when station changes
+  // Reset image error and animate bg when station changes
   useEffect(() => {
     setImageError(false);
+    setBgOpacity(0);
+    const timer = setTimeout(() => {
+      setBgOpacity(0.7);
+    }, 200);
+    return () => clearTimeout(timer);
   }, [station]);
 
   // Handle mute toggle
@@ -78,6 +84,38 @@ export default function FullScreenPlayer({
 
   return (
     <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col animate-in fade-in duration-300 overflow-hidden">
+      {/* Dynamic background */}
+      {!imageError && station.imgUrl && (
+        <>
+          <div 
+            style={{ opacity: bgOpacity }}
+            className="absolute inset-0 transition-opacity duration-1000 ease-in-out z-0"
+          >
+            <Image
+              src={station.imgUrl}
+              alt=""
+              fill
+              className="object-cover blur-3xl scale-110"
+              quality={20}
+              priority={false}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background/95" />
+          </div>
+          
+          {/* Animated particles for visual effect */}
+          <div className="absolute inset-0 z-0 opacity-30">
+            {isPlaying && (
+              <>
+                <div className="absolute w-4 h-4 rounded-full bg-primary/20 top-1/4 left-1/4 animate-pulse" style={{ animationDuration: '4s' }} />
+                <div className="absolute w-6 h-6 rounded-full bg-primary/10 top-3/4 left-1/3 animate-pulse" style={{ animationDuration: '7s' }} />
+                <div className="absolute w-3 h-3 rounded-full bg-primary/20 top-2/3 right-1/4 animate-pulse" style={{ animationDuration: '5s' }} />
+                <div className="absolute w-5 h-5 rounded-full bg-primary/10 top-1/3 right-1/3 animate-pulse" style={{ animationDuration: '6s' }} />
+              </>
+            )}
+          </div>
+        </>
+      )}
+
       {/* Close button */}
       <button 
         onClick={onClose}
@@ -87,7 +125,7 @@ export default function FullScreenPlayer({
         <FaTimes className="w-6 h-6" />
       </button>
       
-      <div className="flex flex-col items-center justify-center flex-grow p-6 text-center">
+      <div className="flex flex-col items-center justify-center flex-grow p-6 text-center relative z-10">
         {/* Station artwork */}
         <div className="relative w-full max-w-lg aspect-square mb-8 rounded-2xl overflow-hidden shadow-2xl">
           {!imageError ? (

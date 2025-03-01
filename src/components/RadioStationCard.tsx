@@ -26,6 +26,24 @@ export default function RadioStationCard({
   onClick,
 }: RadioStationCardProps) {
   const [imageError, setImageError] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Derive a subtle background color from the station name
+  const getStationColor = (name: string) => {
+    // Simple hash function to generate a hue from the station name
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Convert to a hue value (0-360)
+    const hue = Math.abs(hash % 360);
+    
+    // Return HSL color with low saturation and high lightness for subtlety
+    return `hsl(${hue}, 70%, 92%)`;
+  };
+
+  const stationColor = getStationColor(station.name);
 
   return (
     <div
@@ -33,6 +51,8 @@ export default function RadioStationCard({
         isActive ? "ring-2 ring-primary" : "hover:ring-1 hover:ring-primary/50"
       }`}
       onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Mobile layout - horizontal card for smallest screens */}
       <div className="block sm:hidden flex flex-row h-24">
@@ -44,14 +64,29 @@ export default function RadioStationCard({
               alt={station.name}
               fill
               sizes="96px"
-              className="object-cover transition-transform duration-300 ease-in-out"
+              className={`object-cover transition-transform duration-500 ease-in-out ${
+                isHovered ? 'scale-110' : 'scale-100'
+              }`}
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-card">
+            <div 
+              className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-card"
+              style={{ 
+                background: `linear-gradient(135deg, ${stationColor} 0%, rgba(var(--card), 0.8) 100%)` 
+              }}
+            >
               <FaMusic className="text-2xl text-primary/60" />
             </div>
           )}
+
+          {/* Subtle color overlay based on station name */}
+          <div 
+            className={`absolute inset-0 mix-blend-soft-light transition-opacity duration-300 ${
+              isActive ? 'opacity-60' : 'opacity-30'
+            }`}
+            style={{ backgroundColor: stationColor }}
+          />
 
           {/* Favorite indicator - positioned for mobile */}
           {isFavorite && (
@@ -128,14 +163,29 @@ export default function RadioStationCard({
               alt={station.name}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-              className="object-cover transition-transform duration-300 ease-in-out"
+              className={`object-cover transition-transform duration-700 ease-in-out ${
+                isHovered || isActive ? 'scale-110' : 'scale-100'
+              }`}
               onError={() => setImageError(true)}
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-card">
+            <div 
+              className="w-full h-full flex items-center justify-center"
+              style={{ 
+                background: `linear-gradient(135deg, ${stationColor} 0%, rgba(var(--card), 0.8) 100%)` 
+              }}
+            >
               <FaMusic className="text-5xl text-primary/60" />
             </div>
           )}
+
+          {/* Subtle color overlay based on station name */}
+          <div 
+            className={`absolute inset-0 mix-blend-soft-light transition-opacity duration-300 ${
+              isActive ? 'opacity-60' : isHovered ? 'opacity-40' : 'opacity-30'
+            }`}
+            style={{ backgroundColor: stationColor }}
+          />
 
           {/* Status overlays */}
           {hasError && (
@@ -174,7 +224,14 @@ export default function RadioStationCard({
         </div>
 
         {/* Station info */}
-        <div className="p-3 border-t border-border bg-card">
+        <div 
+          className={`p-3 border-t border-border transition-colors duration-300 ${
+            isActive ? 'bg-primary/5' : 'bg-card'
+          }`}
+          style={{
+            backgroundColor: isActive ? `${stationColor}30` : '' // 30 is opacity in hex
+          }}
+        >
           <div className="flex items-start justify-between">
             <div>
               <h3 className="font-medium line-clamp-1">{station.name}</h3>
