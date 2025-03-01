@@ -92,5 +92,12 @@ export const radioStations: RadioStation[] = [
     url: "https://stream.zeno.fm/0r0xa792kwzuv",
     description: "Smooth, relaxing chill beats",
     imgUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
-  }
+  },
+  {
+    id: "reyfm-lofi",
+    name: "REYFM – #lofi",
+    url: "https://listen.reyfm.de/lofi_320kbps.mp3",
+    description: "German 24/7 high-quality lofi channel with carefully curated playlists",
+    imgUrl: "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1469&q=80"
+  },
 ]; 
