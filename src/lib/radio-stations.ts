@@ -7,97 +7,97 @@ export const radioStations: RadioStation[] = [
     name: "Chillhop",
     url: "https://ice1.somafm.com/defcon-128-mp3",
     description: "Chill instrumental beats",
-    imgUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+    imgUrl: "/images/Chillhop.webp"
   },
   {
     id: "lofi-night",
     name: "Lofi Night",
     url: "https://stream.zeno.fm/f3wvbbqmdg8uv",
     description: "Lofi beats to relax to",
-    imgUrl: "https://images.unsplash.com/photo-1614149162883-504ce4d13909?ixlib=rb-4.0.3&auto=format&fit=crop&w=1374&q=80"
+    imgUrl: "/images/Lofi-Night.webp"
   },
   {
     id: "lofi",
     name: "Lofi",
     url: "https://lofi.stream.laut.fm/lofi",
     description: "Lofi beats to relax to",
-    imgUrl: "https://images.unsplash.com/photo-1520209759809-a9bcb6cb3241?ixlib=rb-4.0.3&auto=format&fit=crop&w=1374&q=80"
+    imgUrl: "/images/Lofi.webp"
   },
   {
     id: "coffee-shop-vibes",
     name: "Coffee Shop Vibes",
     url: "https://streams.fluxfm.de/Chillhop/mp3-128/streams.fluxfm.de/",
     description: "Coffee shop ambience with lofi beats",
-    imgUrl: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80"
+    imgUrl: "/images/Coffee-Shop-Vibes.webp"
   },
   {
     id: "asian-lofi",
     name: "Asian Lofi",
     url: "https://listen.moe/fallback",
     description: "Asian-inspired lofi hip hop",
-    imgUrl: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+    imgUrl: "/images/Asian-Lofi.webp"
   },
   {
     id: "synthwave",
     name: "Synthwave",
     url: "https://ice2.somafm.com/spacestation-128-mp3",
     description: "80s-inspired electronic beats",
-    imgUrl: "https://images.unsplash.com/flagged/photo-1595524288414-a7fda0a12d0c?q=80&w=1912&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    imgUrl: "/images/Synthwave.webp"
   },
   {
     id: "jazz-hop",
     name: "Jazz Hop",
     url: "https://ice4.somafm.com/gsclassic-128-mp3",
     description: "Jazz-infused hip hop beats",
-    imgUrl: "https://images.unsplash.com/photo-1511192336575-5a79af67a629?ixlib=rb-4.0.3&auto=format&fit=crop&w=1632&q=80"
+    imgUrl: "/images/Jazz-Hop.webp"
   },
   {
     id: "sleep-beats",
     name: "Sleep Beats",
     url: "https://ice6.somafm.com/dronezone-128-mp3",
     description: "Ambient beats for sleeping",
-    imgUrl: "https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?q=80&w=2060&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    imgUrl: "/images/Sleep-Beats.webp"
   },
   {
     id: "rain-lofi",
     name: "Rain & Lofi",
     url: "https://ice1.somafm.com/fluid-128-mp3",
     description: "Lofi beats with rain sounds",
-    imgUrl: "https://images.unsplash.com/photo-1501691223387-dd0500403074?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+    imgUrl: "/images/Rain-Lofi.webp"
   },
   {
     id: "focus-beats",
     name: "Focus Beats",
     url: "https://ice2.somafm.com/deepspaceone-128-mp3",
     description: "Beats to help you focus and study",
-    imgUrl: "https://images.unsplash.com/photo-1456324504439-367cee3b3c32?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+    imgUrl: "/images/Focus-Beats.webp"
   },
   {
     id: "pixel-lofi",
     name: "Pixel Lofi",
     url: "https://radio.plaza.one/mp3",
     description: "Pixelated nostalgia with lofi beats",
-    imgUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+    imgUrl: "/images/Pixel-Lofi.webp"
   },
   {
     id: "soma-groove-salad",
     name: "SomaFM Groove Salad",
     url: "https://ice1.somafm.com/groovesalad-128-mp3",
     description: "Ambient/downtempo beats and grooves",
-    imgUrl: "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+    imgUrl: "/images/SomaFM-Groove-Salad.webp"
   },
   {
     id: "zeno-lofi-hiphop",
     name: "Zeno.FM Lofi Hip Hop",
     url: "https://stream.zeno.fm/0r0xa792kwzuv",
     description: "Smooth, relaxing chill beats",
-    imgUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+    imgUrl: "/images/Zeno.FM-Lofi-Hip-Hop.webp"
   },
   {
     id: "reyfm-lofi",
     name: "REYFM – #lofi",
     url: "https://listen.reyfm.de/lofi_320kbps.mp3",
     description: "German 24/7 high-quality lofi channel with carefully curated playlists",
-    imgUrl: "https://images.unsplash.com/photo-1508700929628-666bc8bd84ea?ixlib=rb-4.0.3&auto=format&fit=crop&w=1469&q=80"
+    imgUrl: "/images/REYFM–lofi.webp"
   },
 ]; 
