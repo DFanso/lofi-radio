@@ -24,6 +24,7 @@ export default function Home() {
   const [showLastStationNotification, setShowLastStationNotification] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [autoPlayLastStation, setAutoPlayLastStation] = useState(false);
+  const [lastPlayedStationId, setLastPlayedStationId] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -74,9 +75,12 @@ export default function Home() {
       }
     }
     
-    // Load last played station from localStorage
+    // Load last played station ID
     const lastStationId = localStorage.getItem('lofiRadioLastStation');
     if (lastStationId) {
+      setLastPlayedStationId(lastStationId);
+      
+      // Now find and load the station
       try {
         const lastStation = radioStations.find(station => station.id === lastStationId);
         if (lastStation) {
@@ -222,6 +226,7 @@ export default function Home() {
   useEffect(() => {
     if (currentStation) {
       localStorage.setItem('lofiRadioLastStation', currentStation.id);
+      setLastPlayedStationId(currentStation.id);
     }
   }, [currentStation]);
 
@@ -721,7 +726,7 @@ export default function Home() {
                       isLoading={isLoading && currentStation?.id === station.id}
                       hasError={stationsWithErrors.includes(station.id)}
                       isFavorite={true}
-                      isLastPlayed={!currentStation?.id && localStorage.getItem('lofiRadioLastStation') === station.id}
+                      isLastPlayed={!currentStation?.id && lastPlayedStationId === station.id}
                       onClick={() => handleStationSelect(station)}
                     />
                   ))}
@@ -761,7 +766,7 @@ export default function Home() {
                       isLoading={isLoading && currentStation?.id === station.id}
                       hasError={stationsWithErrors.includes(station.id)}
                       isFavorite={isFavorite(station.id)}
-                      isLastPlayed={!currentStation?.id && localStorage.getItem('lofiRadioLastStation') === station.id}
+                      isLastPlayed={!currentStation?.id && lastPlayedStationId === station.id}
                       onClick={() => handleStationSelect(station)}
                     />
                   ))}
@@ -787,7 +792,7 @@ export default function Home() {
                       isLoading={isLoading && currentStation?.id === station.id}
                       hasError={stationsWithErrors.includes(station.id)}
                       isFavorite={isFavorite(station.id)}
-                      isLastPlayed={!currentStation?.id && localStorage.getItem('lofiRadioLastStation') === station.id}
+                      isLastPlayed={!currentStation?.id && lastPlayedStationId === station.id}
                       onClick={() => handleStationSelect(station)}
                     />
                   ))}
@@ -806,7 +811,7 @@ export default function Home() {
                   isLoading={isLoading && currentStation?.id === station.id}
                   hasError={stationsWithErrors.includes(station.id)}
                   isFavorite={isFavorite(station.id)}
-                  isLastPlayed={!currentStation?.id && localStorage.getItem('lofiRadioLastStation') === station.id}
+                  isLastPlayed={!currentStation?.id && lastPlayedStationId === station.id}
                   onClick={() => handleStationSelect(station)}
                 />
               ))}
