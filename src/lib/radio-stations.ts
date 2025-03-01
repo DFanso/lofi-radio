@@ -78,5 +78,27 @@ export const radioStations: RadioStation[] = [
     url: "https://radio.plaza.one/mp3",
     description: "Pixelated nostalgia with lofi beats",
     imgUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+  },
+  // New stations
+  {
+    id: "di-fm-chillhop",
+    name: "DI.FM Chillhop",
+    url: "https://ice1.somafm.com/groovesalad-128-mp3",
+    description: "Mellow chill beats, lofi hip-hop, downtempo, jazz",
+    imgUrl: "https://images.unsplash.com/photo-1611078489935-0cb964de46d6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1074&q=80"
+  },
+  {
+    id: "soma-groove-salad",
+    name: "SomaFM Groove Salad",
+    url: "https://ice1.somafm.com/groovesalad-128-mp3",
+    description: "Ambient/downtempo beats and grooves",
+    imgUrl: "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
+  },
+  {
+    id: "zeno-lofi-hiphop",
+    name: "Zeno.FM Lofi Hip Hop",
+    url: "https://stream.zeno.fm/0r0xa792kwzuv",
+    description: "Smooth, relaxing chill beats",
+    imgUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80"
   }
 ]; 
