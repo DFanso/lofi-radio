@@ -197,6 +197,32 @@ export default function RadioPlayer({
                 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:rounded-full 
                 [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-none"
             />
+            
+            {/* Desktop favorite button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`h-8 w-8 p-0 ml-2 ${
+                isFavorite ? "text-red-500" : "text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={onToggleFavorite}
+              disabled={!station}
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              {isFavorite ? <FaHeart className="w-3 h-3" /> : <FaRegHeart className="w-3 h-3" />}
+            </Button>
+            
+            {/* Desktop full screen button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground p-0 hover:text-foreground ml-1"
+              onClick={onOpenFullScreen}
+              disabled={!station}
+              title="Open full screen player"
+            >
+              <FaExpand className="w-3 h-3" />
+            </Button>
           </div>
         </div>
       </div>
