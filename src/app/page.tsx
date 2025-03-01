@@ -652,13 +652,13 @@ export default function Home() {
                 </svg>
               </button>
             </div>
-            <button 
+            {/* <button 
               onClick={toggleSettings}
               className={`rounded-full ${showSettings ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'} p-2 hover:bg-muted/80 transition-colors`}
               aria-label="Settings"
             >
               <FaCog className="w-4 h-4" />
-            </button>
+            </button> */}
             <ThemeToggle />
           </div>
         </div>
