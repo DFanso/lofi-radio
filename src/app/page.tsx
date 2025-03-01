@@ -5,7 +5,7 @@ import RadioPlayer from "@/components/RadioPlayer";
 import RadioStationCard from "@/components/RadioStationCard";
 import FullScreenPlayer from "@/components/FullScreenPlayer";
 import { radioStations } from "@/lib/radio-stations";
-import { FaMusic, FaCog, FaTimes } from "react-icons/fa";
+import { FaMusic, FaTimes } from "react-icons/fa";
 import type { RadioStation } from "@/types/types";
 import Image from "next/image";
 
@@ -558,9 +558,9 @@ export default function Home() {
   }, [currentStation, isPlaying, backgroundOpacity]);
 
   // Toggle settings panel
-  const toggleSettings = () => {
-    setShowSettings(!showSettings);
-  };
+  // const toggleSettings = () => {
+  //   setShowSettings(!showSettings);
+  // };
 
   return (
     <div className="flex flex-col min-h-screen bg-background relative overflow-hidden">
