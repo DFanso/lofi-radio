@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { FaMusic, FaPlay, FaPause, FaHeart } from "react-icons/fa";
+import { FaMusic, FaPlay, FaPause, FaHeart, FaHistory } from "react-icons/fa";
 import { IoWarningOutline } from "react-icons/io5";
 import type { RadioStation } from "../types/types";
 
@@ -13,6 +13,7 @@ interface RadioStationCardProps {
   isLoading: boolean;
   hasError: boolean;
   isFavorite: boolean;
+  isLastPlayed?: boolean;
   onClick: () => void;
 }
 
@@ -23,10 +24,24 @@ export default function RadioStationCard({
   isLoading,
   hasError,
   isFavorite,
+  isLastPlayed = false,
   onClick,
 }: RadioStationCardProps) {
   const [imageError, setImageError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showLastPlayedBadge, setShowLastPlayedBadge] = useState(false);
+  
+  // Show the last played badge on mount with a slight delay for animation
+  useEffect(() => {
+    if (isLastPlayed && !isActive) {
+      const timer = setTimeout(() => {
+        setShowLastPlayedBadge(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    } else {
+      setShowLastPlayedBadge(false);
+    }
+  }, [isLastPlayed, isActive]);
 
   // Derive a subtle background color from the station name
   const getStationColor = (name: string) => {
@@ -48,12 +63,20 @@ export default function RadioStationCard({
   return (
     <div
       className={`relative overflow-hidden rounded-xl transition-all duration-300 shadow-md hover:shadow-lg scale-on-hover cursor-pointer ${
-        isActive ? "ring-2 ring-primary" : "hover:ring-1 hover:ring-primary/50"
+        isActive ? "ring-2 ring-primary" : isLastPlayed && !isActive ? "ring-1 ring-primary/30" : "hover:ring-1 hover:ring-primary/50"
       }`}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* Last played indicator badge */}
+      {showLastPlayedBadge && (
+        <div className="absolute top-2 left-2 z-30 bg-primary/80 text-primary-foreground text-xs rounded-full px-2 py-0.5 shadow-md flex items-center animate-in fade-in duration-300">
+          <FaHistory className="mr-1 text-[10px]" />
+          <span>Last played</span>
+        </div>
+      )}
+
       {/* Mobile layout - horizontal card for smallest screens */}
       <div className="block sm:hidden flex flex-row h-24">
         {/* Image container - smaller square for mobile */}

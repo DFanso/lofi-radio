@@ -5,7 +5,7 @@ import RadioPlayer from "@/components/RadioPlayer";
 import RadioStationCard from "@/components/RadioStationCard";
 import FullScreenPlayer from "@/components/FullScreenPlayer";
 import { radioStations } from "@/lib/radio-stations";
-import { FaMusic } from "react-icons/fa";
+import { FaMusic, FaCog, FaTimes } from "react-icons/fa";
 import type { RadioStation } from "@/types/types";
 import Image from "next/image";
 
@@ -21,6 +21,9 @@ export default function Home() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [isFullScreenOpen, setIsFullScreenOpen] = useState(false);
   const [backgroundOpacity, setBackgroundOpacity] = useState(0);
+  const [showLastStationNotification, setShowLastStationNotification] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [autoPlayLastStation, setAutoPlayLastStation] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -41,6 +44,16 @@ export default function Home() {
       }
     }
     
+    // Load auto-play preference
+    const savedAutoPlay = localStorage.getItem('lofiRadioAutoPlay');
+    if (savedAutoPlay) {
+      try {
+        setAutoPlayLastStation(savedAutoPlay === 'true');
+      } catch (e) {
+        console.error('Error loading auto-play preference', e);
+      }
+    }
+    
     // Initialize audio element
     audioRef.current = new Audio();
     audioRef.current.volume = volume / 100;
@@ -58,6 +71,35 @@ export default function Home() {
         setFavorites(JSON.parse(savedFavorites));
       } catch (e) {
         console.error('Error loading favorites', e);
+      }
+    }
+    
+    // Load last played station from localStorage
+    const lastStationId = localStorage.getItem('lofiRadioLastStation');
+    if (lastStationId) {
+      try {
+        const lastStation = radioStations.find(station => station.id === lastStationId);
+        if (lastStation) {
+          console.log(`Restored last played station: ${lastStation.name}`);
+          setCurrentStation(lastStation);
+          setShowLastStationNotification(true);
+          
+          // Hide notification after 5 seconds
+          setTimeout(() => {
+            setShowLastStationNotification(false);
+          }, 5000);
+          
+          // Auto-play if enabled in settings
+          if (savedAutoPlay === 'true') {
+            // Small delay to ensure audio is initialized
+            setTimeout(() => {
+              handleStationSelect(lastStation);
+              setShowLastStationNotification(false);
+            }, 500);
+          }
+        }
+      } catch (e) {
+        console.error('Error loading last station', e);
       }
     }
     
@@ -176,6 +218,13 @@ export default function Home() {
     localStorage.setItem('lofiRadioFavorites', JSON.stringify(favorites));
   }, [favorites]);
 
+  // Save last played station to localStorage whenever it changes
+  useEffect(() => {
+    if (currentStation) {
+      localStorage.setItem('lofiRadioLastStation', currentStation.id);
+    }
+  }, [currentStation]);
+
   // Save volume preference to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('lofiRadioVolume', volume.toString());
@@ -184,6 +233,11 @@ export default function Home() {
       audioRef.current.volume = volume / 100;
     }
   }, [volume]);
+
+  // Save auto-play preference whenever it changes
+  useEffect(() => {
+    localStorage.setItem('lofiRadioAutoPlay', autoPlayLastStation.toString());
+  }, [autoPlayLastStation]);
 
   // Handle adding/removing favorites
   const toggleFavorite = (stationId: string) => {
@@ -478,6 +532,11 @@ export default function Home() {
     }
   }, [currentStation]);
 
+  // Toggle settings panel
+  const toggleSettings = () => {
+    setShowSettings(!showSettings);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-background relative overflow-hidden">
       {/* Dynamic station background */}
@@ -547,10 +606,80 @@ export default function Home() {
                 </svg>
               </button>
             </div>
+            <button 
+              onClick={toggleSettings}
+              className={`rounded-full ${showSettings ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'} p-2 hover:bg-muted/80 transition-colors`}
+              aria-label="Settings"
+            >
+              <FaCog className="w-4 h-4" />
+            </button>
             <ThemeToggle />
           </div>
         </div>
       </header>
+
+      {/* Settings Panel */}
+      {showSettings && (
+        <div className="fixed right-4 top-20 z-50 w-80 bg-card border shadow-lg rounded-lg animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="flex items-center justify-between border-b p-4">
+            <h3 className="font-medium">Settings</h3>
+            <button 
+              onClick={() => setShowSettings(false)}
+              className="text-muted-foreground hover:text-foreground rounded-full p-1"
+              aria-label="Close settings"
+            >
+              <FaTimes className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <label htmlFor="autoplay-toggle" className="text-sm flex-grow">
+                Auto-play last station on return
+                <p className="text-xs text-muted-foreground">
+                  Automatically play your last station when you open the app
+                </p>
+              </label>
+              <div className="relative inline-block w-12 align-middle select-none">
+                <input 
+                  type="checkbox" 
+                  id="autoplay-toggle" 
+                  checked={autoPlayLastStation}
+                  onChange={() => setAutoPlayLastStation(!autoPlayLastStation)}
+                  className="sr-only"
+                />
+                <div className={`block ${autoPlayLastStation ? 'bg-primary' : 'bg-muted'} w-12 h-6 rounded-full transition-colors duration-200`}></div>
+                <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 transform ${autoPlayLastStation ? 'translate-x-6' : 'translate-x-0'}`}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Last station notification */}
+      {showLastStationNotification && currentStation && (
+        <div className="fixed top-20 left-0 right-0 z-50 flex justify-center animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="bg-primary/90 text-primary-foreground px-4 py-2 rounded-md shadow-lg flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+              <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+            <span>Restored your last station: <strong>{currentStation.name}</strong></span>
+            <button 
+              onClick={() => {
+                handleStationSelect(currentStation);
+                setShowLastStationNotification(false);
+              }}
+              className="ml-4 bg-white/20 hover:bg-white/30 text-white rounded-full p-1 transition-colors flex items-center"
+              aria-label="Play last station"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <span className="ml-1 mr-1 text-sm">Play</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Error message only - removed loading indicator */}
       {error && (
@@ -592,6 +721,7 @@ export default function Home() {
                       isLoading={isLoading && currentStation?.id === station.id}
                       hasError={stationsWithErrors.includes(station.id)}
                       isFavorite={true}
+                      isLastPlayed={!currentStation?.id && localStorage.getItem('lofiRadioLastStation') === station.id}
                       onClick={() => handleStationSelect(station)}
                     />
                   ))}
@@ -631,6 +761,7 @@ export default function Home() {
                       isLoading={isLoading && currentStation?.id === station.id}
                       hasError={stationsWithErrors.includes(station.id)}
                       isFavorite={isFavorite(station.id)}
+                      isLastPlayed={!currentStation?.id && localStorage.getItem('lofiRadioLastStation') === station.id}
                       onClick={() => handleStationSelect(station)}
                     />
                   ))}
@@ -656,6 +787,7 @@ export default function Home() {
                       isLoading={isLoading && currentStation?.id === station.id}
                       hasError={stationsWithErrors.includes(station.id)}
                       isFavorite={isFavorite(station.id)}
+                      isLastPlayed={!currentStation?.id && localStorage.getItem('lofiRadioLastStation') === station.id}
                       onClick={() => handleStationSelect(station)}
                     />
                   ))}
@@ -674,6 +806,7 @@ export default function Home() {
                   isLoading={isLoading && currentStation?.id === station.id}
                   hasError={stationsWithErrors.includes(station.id)}
                   isFavorite={isFavorite(station.id)}
+                  isLastPlayed={!currentStation?.id && localStorage.getItem('lofiRadioLastStation') === station.id}
                   onClick={() => handleStationSelect(station)}
                 />
               ))}
