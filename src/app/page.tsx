@@ -22,8 +22,21 @@ export default function Home() {
   const loadingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const retryCountRef = useRef(0);
   
-  // Initialize audio on client side and load favorites from localStorage
+  // Initialize audio on client side and load user preferences from localStorage
   useEffect(() => {
+    // Load saved volume preference
+    const savedVolume = localStorage.getItem('lofiRadioVolume');
+    if (savedVolume) {
+      try {
+        const parsedVolume = parseInt(savedVolume, 10);
+        if (!isNaN(parsedVolume) && parsedVolume >= 0 && parsedVolume <= 100) {
+          setVolume(parsedVolume);
+        }
+      } catch (e) {
+        console.error('Error loading volume preference', e);
+      }
+    }
+    
     // Initialize audio element
     audioRef.current = new Audio();
     audioRef.current.volume = volume / 100;
@@ -94,7 +107,62 @@ export default function Home() {
         audioRef.current.removeEventListener('loadstart', handleLoadStart);
         audioRef.current.removeEventListener('canplay', handleCanPlay);
         audioRef.current.pause();
-        audioRef.current = null;
+      }
+    };
+  }, []);  // Remove currentStation dependency since we need this to run only once on mount
+
+  // Handle audio updates when current station changes
+  useEffect(() => {
+    // Add error event listener
+    const handleAudioError = (e: Event) => {
+      const audioError = e.currentTarget as HTMLAudioElement;
+      const errorMessage = audioError.error ? audioError.error.message : "Unknown error";
+      
+      console.error(`Audio error: ${errorMessage}`, {
+        src: audioRef.current?.src
+      });
+      
+      setIsPlaying(false);
+      setIsLoading(false);
+      
+      setError("Failed to play this station. Please try another one.");
+      
+      // Add current station to error list
+      if (currentStation) {
+        setStationsWithErrors(prev => {
+          if (!prev.includes(currentStation.id)) {
+            return [...prev, currentStation.id];
+          }
+          return prev;
+        });
+      }
+      
+      // Clear error after 5 seconds
+      setTimeout(() => setError(null), 5000);
+    };
+    
+    // Add loadstart and canplay events for better loading indicators
+    const handleLoadStart = () => {
+      setIsLoading(true);
+    };
+    
+    const handleCanPlay = () => {
+      setIsLoading(false);
+    };
+    
+    if (audioRef.current) {
+      audioRef.current.addEventListener('error', handleAudioError);
+      audioRef.current.addEventListener('loadstart', handleLoadStart);
+      audioRef.current.addEventListener('canplay', handleCanPlay);
+    }
+    
+    // Cleanup function
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener('error', handleAudioError);
+        audioRef.current.removeEventListener('loadstart', handleLoadStart);
+        audioRef.current.removeEventListener('canplay', handleCanPlay);
+        audioRef.current.pause();
       }
     };
   }, [currentStation]);
@@ -103,6 +171,15 @@ export default function Home() {
   useEffect(() => {
     localStorage.setItem('lofiRadioFavorites', JSON.stringify(favorites));
   }, [favorites]);
+
+  // Save volume preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('lofiRadioVolume', volume.toString());
+    // Still update audio volume even if current player instance is null
+    if (audioRef.current) {
+      audioRef.current.volume = volume / 100;
+    }
+  }, [volume]);
 
   // Handle adding/removing favorites
   const toggleFavorite = (stationId: string) => {
@@ -120,12 +197,11 @@ export default function Home() {
     return favorites.includes(stationId);
   };
 
-  // Handle volume change in a separate effect
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume / 100;
-    }
-  }, [volume]);
+  // Handle volume change with dedicated function
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+    // Audio volume is handled in the useEffect
+  };
 
   const handleStationSelect = (station: RadioStation) => {
     // Clear any previous errors
@@ -280,12 +356,6 @@ export default function Home() {
     }
   };
   
-  // Handle volume change with dedicated function
-  const handleVolumeChange = (newVolume: number) => {
-    setVolume(newVolume);
-    // Audio volume is handled in the useEffect
-  };
-
   // Navigate to next station
   const handleNextStation = () => {
     if (!currentStation) return;

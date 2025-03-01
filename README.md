@@ -21,7 +21,7 @@ A beautiful lofi radio web application built with Next.js and pnpm.
 
 1. Clone the repository
    ```bash
-   git clone https://github.com/yourusername/lofi-radio.git
+   git clone https://github.com/dfanso/lofi-radio.git
    cd lofi-radio
    ```
 
