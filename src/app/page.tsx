@@ -524,18 +524,38 @@ export default function Home() {
     };
   }, []);
 
-  // Animate background opacity when station changes
+  // Add helper function to generate dynamic colors from station names
+  const getStationColor = (name: string) => {
+    // Simple hash function to generate a hue from the station name
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    // Convert to a hue value (0-360)
+    const hue = Math.abs(hash % 360);
+    
+    // Return HSL color
+    return `hsl(${hue}, 70%, 50%)`;
+  };
+
+  // Animate background opacity when station changes or play state changes
   useEffect(() => {
     if (currentStation) {
-      // Reset opacity
-      setBackgroundOpacity(0);
-      // Animate it in
-      const timer = setTimeout(() => {
-        setBackgroundOpacity(0.15);
-      }, 100);
-      return () => clearTimeout(timer);
+      // For station changes, reset opacity first
+      if (!backgroundOpacity) {
+        setBackgroundOpacity(0);
+        // Short delay then fade in
+        const timer = setTimeout(() => {
+          setBackgroundOpacity(isPlaying ? 0.8 : 0.3);
+        }, 100);
+        return () => clearTimeout(timer);
+      } else {
+        // For play state changes, transition directly
+        setBackgroundOpacity(isPlaying ? 0.8 : 0.3);
+      }
     }
-  }, [currentStation]);
+  }, [currentStation, isPlaying, backgroundOpacity]);
 
   // Toggle settings panel
   const toggleSettings = () => {
@@ -544,21 +564,42 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background relative overflow-hidden">
-      {/* Dynamic station background */}
-      {currentStation && currentStation.imgUrl && (
+      {/* Dynamic station background - enhanced to match fullscreen experience */}
+      {currentStation && (
         <div 
-          className="fixed inset-0 z-0 transition-opacity duration-1000 ease-in-out"
+          className="fixed inset-0 z-0 transition-all duration-1000 ease-in-out"
           style={{ opacity: backgroundOpacity }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-background to-background/95 z-10" />
-          <Image 
-            src={currentStation.imgUrl} 
-            alt=""
-            fill
-            className="object-cover blur-3xl scale-110"
-            quality={10}
-            priority={false}
-          />
+          {currentStation.imgUrl ? (
+            <Image 
+              src={currentStation.imgUrl} 
+              alt=""
+              fill
+              className={`object-cover blur-3xl scale-110 transition-transform duration-2000 ${isPlaying ? 'scale-125' : 'scale-110'}`}
+              quality={20}
+              priority={false}
+            />
+          ) : (
+            <div 
+              className="absolute inset-0 bg-gradient-to-br transition-opacity duration-1000"
+              style={{ 
+                background: `linear-gradient(135deg, ${getStationColor(currentStation.name)} 0%, rgba(var(--background), 0.8) 100%)` 
+              }}
+            />
+          )}
+          
+          {/* Enhanced gradient overlay that ensures content remains readable */}
+          <div className={`absolute inset-0 bg-gradient-to-b from-background/80 via-background/70 to-background/95 z-10 transition-opacity duration-500 ${isPlaying ? 'opacity-75' : 'opacity-90'}`} />
+          
+          {/* Add subtle animated particles when playing like in full screen player */}
+          {isPlaying && (
+            <div className="absolute inset-0 z-10 opacity-30">
+              <div className="absolute w-4 h-4 rounded-full bg-primary/20 top-1/4 left-1/4 animate-pulse" style={{ animationDuration: '4s' }} />
+              <div className="absolute w-6 h-6 rounded-full bg-primary/10 top-3/4 left-1/3 animate-pulse" style={{ animationDuration: '7s' }} />
+              <div className="absolute w-3 h-3 rounded-full bg-primary/20 top-2/3 right-1/4 animate-pulse" style={{ animationDuration: '5s' }} />
+              <div className="absolute w-5 h-5 rounded-full bg-primary/10 top-1/3 right-1/3 animate-pulse" style={{ animationDuration: '6s' }} />
+            </div>
+          )}
         </div>
       )}
 
