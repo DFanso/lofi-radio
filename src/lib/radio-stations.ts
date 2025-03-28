@@ -100,4 +100,32 @@ export const radioStations: RadioStation[] = [
     description: "German 24/7 high-quality lofi channel with carefully curated playlists",
     imgUrl: "/images/REYFM–lofi.webp"
   },
+  {
+    id: "nightride-fm",
+    name: "Nightride FM",
+    url: "https://stream.nightride.fm/nightride.m4a",
+    description: "24/7 streaming of nostalgic, electronic music",
+    imgUrl: "/images/Nightride-FM.png"
+  },
+  {
+    id: "synthwave-radio",
+    name: "Synthwave Radio",
+    url: "https://stream.synthwaveradio.eu/listen/synthwaveradio.eu/radio.mp3",
+    description: "Broad electronic music, including vaporwave and darksynth",
+    imgUrl: "/images/Synthwave-Radio.png"
+  },
+  {
+    id: "groove-salad",
+    name: "Groove Salad",
+    url: "https://ice2.somafm.com/groovesalad-128-mp3",
+    description: "Chilled beats, relaxed grooves",
+    imgUrl: "/images/Groove-Salad.png"
+  },
+  {
+    id: "mellow-mix",
+    name: "Mellow Mix",
+    url: "https://stream.radioparadise.com/mellow-192",
+    description: "Cozy living room for relaxation, fitting background use",
+    imgUrl: "/images/Mellow-Mix.png"
+  }
 ]; 
